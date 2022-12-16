@@ -5,6 +5,9 @@ import datetime
 import time
 import settings
 import os
+import json
+import numpy as np
+from collections import Counter
 
 datetimenow = datetime.datetime.now().strftime("%d-%m-%Y_%H-%M")
 ftpserver = settings.ftpserver
@@ -14,25 +17,45 @@ pricefile = settings.pricefile #path to the file with price (price-list)
 archpath = settings.archpath #archive folder for uploaded prices
 ftppath = settings.ftppath #path on ftpserver to folder where need upload price
 sleep = settings.sleep
+sourceFolder = settings.sourceFolder
+targetFolder = settings.targetFolder
 
 
 def main():
-    print("ftpserver = "+ftpserver+",user = "+ftplogin)
-    listAllFolder(pricefile)
+    #print("ftpserver = "+ftpserver+",user = "+ftplogin)
+    getFolderDiff(sourceFolder,targetFolder)
 
-    # WaitForFileExists(pricefile)
-    # DoUploadToFtp(ftpserver, ftplogin, ftppassword, pricefile, ftppath)
-    # FileToArchive(pricefile, archpath)
-    # FileDelete(pricefile)
 
-    # List all files and subfolders in the directory tree
+def getFolderDiff(dir1,dir2):
+    C = listAllFolder(dir1)
+    D = listAllFolder(dir1)
+    D.append("C:\\Users\\WELCOME\\Desktop\\data_to_backup_bak")
+    result = list((Counter(D) - Counter(C)).elements())
+    print(result)
+
 def listAllFolder(path):
-
+    #folderStructureAll = []
+    allFolder =[]
     for root, dirs, files in os.walk(path):
-        print(f'Root: {root}')
-        print(f'Directories: {dirs}')
-        print(f'Files: {files}')
+        mydict = {
+            "dir": root,
+            "subdir":dirs,
+            "file":files
+        }
+    #    folderStructureAll.append(mydict) # all folder structure
+        allFolder.append(root)  # Root folder
 
+    #printDictDir(folderStructureAll,"dir")
+    #print(allFolder)
+    return allFolder
+
+
+def printDictDir(dict,key):
+    for data in dict:
+        print(data[key])
+
+def printDict(dict):
+    print(json.dumps(dict,sort_keys=False, indent=4))
 
 
 def FileExists(pricefile, after_delete=False): # флаг after_delete нужен для проверки существования файла после удаления
