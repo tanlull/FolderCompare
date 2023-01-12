@@ -23,31 +23,49 @@ targetFolder = settings.targetFolder
 
 def main():
     #print("ftpserver = "+ftpserver+",user = "+ftplogin)
-    listAllFolder(sourceFolder)
+
+    # folders, files = listAllFolder(sourceFolder)
+    folders, files = listAllFolder("C:\RPAShare")
+    #print(files)
+    print(folders)
 
 
 def listAllFolder(path):
     folderStructureAll = []
-    allFolder =[]
+    allFolders =[]
+    allFiles = []
     for root, dirs, files in os.walk(path):
         mydict = {
             "dir": root,
             "subdir":dirs,
             "file":files
         }
-        print(root)
-        print(dirs)
+        #print(root)
+
+        # print(dirs)
         # print("subdir =".join(dirs))
-        # print("file = ".join(files))
+        # print(files)
+
+
         folderStructureAll.append(mydict) # all folder structure
 
-        allFolder.append(root)  # Root folder
+        allFolders.append(root)  # Root folder
+
+        if len(files): #ifnot empty
+            listFile = genFileformDict(root,files,"\\") # Generate full file path (C:\\xxx + yyy.txt)
+            # print(listFile)
+            allFiles.append(listFile)
 
 
     #printDictDir(folderStructureAll,"dir")
     #print(allFolder)
-    return allFolder
+    return allFolders,allFiles
 
+def genFileformDict(base,files,seperator):
+    resultfiles = []
+    for f in files:
+        resultfiles.append(base+seperator+f)    
+    return resultfiles
 
 def printDictDir(dict,key):
     for data in dict:
