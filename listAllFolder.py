@@ -8,6 +8,7 @@ import os
 import json
 import numpy as np
 from collections import Counter
+import pickle
 
 datetimenow = datetime.datetime.now().strftime("%d-%m-%Y_%H-%M")
 ftpserver = settings.ftpserver
@@ -21,13 +22,44 @@ sourceFolder = settings.sourceFolder
 targetFolder = settings.targetFolder
 
 
+
+
 def main():
     #print("ftpserver = "+ftpserver+",user = "+ftplogin)
 
-    # folders, files = listAllFolder(sourceFolder)
-    folders, files = listAllFolder("C:\RPAShare")
+    currentFolders, currentFiles = listAllFolder(sourceFolder)
+    #folders, files = listAllFolder("C:\RPAShare")
     #print(files)
-    print(folders)
+    #print(folders)  
+    #dumpList(folders,files)
+    oldFolders, oldFiles= LoadList()
+    #print(foldersPrev)
+    newCreatedFolders = diffList(currentFolders,oldFolders)
+    print(newCreatedFolders)
+
+
+def diffList(newFolders,oldFolders):
+    diff = list(set(newFolders) - set(oldFolders))
+    return diff
+
+
+def LoadList():
+    folders = loadFile2List("folders.pickle")
+    files = loadFile2List("files.pickle")
+    return folders,files
+
+def dumpList(folders,files):
+    dumpList2File(folders,"folders.pickle")
+    dumpList2File(files,"files.pickle")
+
+def loadFile2List(myFilename):
+    with open(myFilename, 'rb') as f:
+        return pickle.load(f)
+        
+
+def dumpList2File(myList,myFilename):
+    with open(myFilename, 'wb') as f:
+        pickle.dump(myList, f)
 
 
 def listAllFolder(path):
@@ -46,15 +78,13 @@ def listAllFolder(path):
         # print("subdir =".join(dirs))
         # print(files)
 
-
         folderStructureAll.append(mydict) # all folder structure
 
         allFolders.append(root)  # Root folder
 
-        if len(files): #ifnot empty
-            listFile = genFileformDict(root,files,"\\") # Generate full file path (C:\\xxx + yyy.txt)
-            # print(listFile)
-            allFiles.append(listFile)
+        listFile = genFileformDict(root,files,"\\") # Generate full file path (C:\\xxx + yyy.txt)
+        # print(listFile)
+        allFiles.extend(listFile)
 
 
     #printDictDir(folderStructureAll,"dir")
@@ -64,7 +94,8 @@ def listAllFolder(path):
 def genFileformDict(base,files,seperator):
     resultfiles = []
     for f in files:
-        resultfiles.append(base+seperator+f)    
+        if len(f): #ifnot empty
+            resultfiles.append(base+seperator+f)    
     return resultfiles
 
 def printDictDir(dict,key):
