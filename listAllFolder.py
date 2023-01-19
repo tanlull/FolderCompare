@@ -11,7 +11,8 @@ from collections import Counter
 import pickle
 import zipfile
 
-datetimenow = datetime.datetime.now().strftime("%d-%m-%Y_%H-%M")
+datetimenow = datetime.datetime.now().strftime("%Y-%m-%d_%H-%M")
+
 ftpserver = settings.ftpserver
 ftplogin =  settings.ftplogin
 ftppassword = settings.ftppassword
@@ -27,8 +28,46 @@ targetFolder = settings.targetFolder
 
 def main():
     allFolders, rootFolders = findFolder2Backup()
-    zipFolder(archpath+"\\"+datetimenow+".zip",allFolders)
+    processZipFolders(rootFolders)
+    
 
+
+def processZipFolders(folders):
+    zipRootFolder = createZipFolder()
+    for f in folders:
+        new_f = getZipFileName(f)
+        print(new_f)
+        zipFolderAndSub(f,zipRootFolder+new_f+".zip")
+
+def getZipFileName(zipFile):
+    f = zipFile.replace("_", "-" )
+    f = f.replace("\\", "_" )
+    f = f.replace("C:", "" )
+    f = f.replace("_", "",1 )
+    return f
+
+def createZipFolder():
+    zipFolder = archpath + "\\"+ datetimenow + "\\"
+    createFolder(zipFolder)
+    #print(zipFolder)
+    return zipFolder
+
+def createFolder(directory):
+    if not os.path.exists(directory):
+        os.makedirs(directory)
+    return directory
+
+
+def zipFolderAndSub(folder2Zip,zipfileName):
+    zipf = zipfile.ZipFile(zipfileName, 'w', zipfile.ZIP_DEFLATED)
+    zipdir(folder2Zip, zipf)
+    zipf.close()
+
+def zipdir(path, ziph):
+    # ziph is zipfile handle
+    for root, dirs, files in os.walk(path):
+        for file in files:
+            ziph.write(os.path.join(root, file))
 
 def zipFolder(fileName2Zip,folder2Zip):
     with zipfile.ZipFile(fileName2Zip, 'w') as zipMe:        
@@ -47,7 +86,7 @@ def findFolder2Backup():
     newCreatedFolders = diffList(currentFolders,oldFolders)
     #print(newCreatedFolders)
     rootNewCreatedFolders = removeChildFolder(newCreatedFolders)
-    print(rootNewCreatedFolders)
+    #print(rootNewCreatedFolders)
     return newCreatedFolders,rootNewCreatedFolders
 
 def removeChildFolder(folderList):
