@@ -9,6 +9,7 @@ import json
 import numpy as np
 from collections import Counter
 import pickle
+import zipfile
 
 datetimenow = datetime.datetime.now().strftime("%d-%m-%Y_%H-%M")
 ftpserver = settings.ftpserver
@@ -25,8 +26,14 @@ targetFolder = settings.targetFolder
 
 
 def main():
-    findFolder2Backup()
+    allFolders, rootFolders = findFolder2Backup()
+    zipFolder(archpath+"\\"+datetimenow+".zip",allFolders)
 
+
+def zipFolder(fileName2Zip,folder2Zip):
+    with zipfile.ZipFile(fileName2Zip, 'w') as zipMe:        
+        for file in folder2Zip:
+            zipMe.write(file, compress_type=zipfile.ZIP_DEFLATED)
 
 def findFolder2Backup():
     #print("ftpserver = "+ftpserver+",user = "+ftplogin)
@@ -35,13 +42,13 @@ def findFolder2Backup():
     #print(files)
     #print(folders)  
     #dumpList(folders,files)
-    oldFolders, oldFiles= LoadList()
+    oldFolders, oldFiles= LoadList()  # load from pickle
     #print(foldersPrev)
     newCreatedFolders = diffList(currentFolders,oldFolders)
     #print(newCreatedFolders)
     rootNewCreatedFolders = removeChildFolder(newCreatedFolders)
     print(rootNewCreatedFolders)
-    return rootNewCreatedFolders
+    return newCreatedFolders,rootNewCreatedFolders
 
 def removeChildFolder(folderList):
     folderListNew = folderList.copy()
