@@ -25,8 +25,11 @@ targetFolder = settings.targetFolder
 
 
 def main():
-    #print("ftpserver = "+ftpserver+",user = "+ftplogin)
+    findFolder2Backup()
 
+
+def findFolder2Backup():
+    #print("ftpserver = "+ftpserver+",user = "+ftplogin)
     currentFolders, currentFiles = listAllFolder(sourceFolder)
     #folders, files = listAllFolder("C:\RPAShare")
     #print(files)
@@ -35,12 +38,25 @@ def main():
     oldFolders, oldFiles= LoadList()
     #print(foldersPrev)
     newCreatedFolders = diffList(currentFolders,oldFolders)
-    print(newCreatedFolders)
+    #print(newCreatedFolders)
+    rootNewCreatedFolders = removeChildFolder(newCreatedFolders)
+    print(rootNewCreatedFolders)
+    return rootNewCreatedFolders
 
+def removeChildFolder(folderList):
+    folderListNew = folderList.copy()
+    folder2Remove = []
+    for dir1 in folderList:
+        for dir2 in folderListNew:
+            if dir1!=dir2 and dir1 in dir2:
+                folder2Remove.append(dir2)    
+    return diffList(folderList,folder2Remove) 
+    
 
 def diffList(newFolders,oldFolders):
     diff = list(set(newFolders) - set(oldFolders))
-    return diff
+    diff_sorted = sorted(diff)
+    return diff_sorted
 
 
 def LoadList():
