@@ -11,6 +11,9 @@ from collections import Counter
 import pickle
 import zipfile
 from datetime import datetime
+from pprint import pprint
+import ftplib as ftp
+
 
 now = datetime.now()
 datetimenow = now.strftime("%Y-%m-%d_%H-%M")
@@ -18,6 +21,7 @@ datetimenow = now.strftime("%Y-%m-%d_%H-%M")
 ftpserver = settings.ftpserver
 ftplogin =  settings.ftplogin
 ftppassword = settings.ftppassword
+ftpport = settings.ftpport
 pricefile = settings.pricefile #path to the file with price (price-list)
 archpath = settings.archpath #archive folder for uploaded prices
 ftppath = settings.ftppath #path on ftpserver to folder where need upload price
@@ -33,7 +37,48 @@ def main():
 
     allFolders, rootFolders = findFolder2Backup()
     writeLog(logAll,getLogFilename(logpath),rootFolders,createZipFolder())
-    processZipFolders(rootFolders)
+    zipBackupFiles = processZipFolders(rootFolders)
+    
+    uploadList2FTP(zipBackupFiles,datetimenow)
+    #uploadFile2FTP(zipBackupFiles[0],datetimenow)
+    #pprint(zipBackupFiles)
+
+
+def connectFTP(ftpserver,ftpport,ftplogin,ftppassword):
+    session = ftp.FTP()
+    session.connect(ftpserver,int(ftpport))
+    session.login(ftplogin,ftppassword)
+    session.encoding = "utf-8"
+    return session
+
+def closeFTP(session):
+    session.quit()
+
+def uploadList2FTP(myList,datetimenow):
+    text = ""
+    session = connectFTP(ftpserver,ftpport,ftplogin,ftppassword)
+    ftpRemoteFolder = datetimenow
+    session.mkd(ftpRemoteFolder)
+    for f in myList:
+        text += uploadFile2FTP(session,f,ftpRemoteFolder)
+    closeFTP(session)
+    return text
+
+
+def uploadFile2FTP(session,file2Upload,ftpRemoteFolder):
+    file = open(file2Upload,'rb')                  # file to send
+    text = ""
+    fileNameOnly = getFileNamefromFullPath(file2Upload)
+    session.storbinary('STOR '+os.path.join(ftpRemoteFolder,fileNameOnly), file)     # send the file
+    file.close()                                    # close file and FTP
+    text += "Upload "+fileNameOnly+" => OK\n"
+    print("Upload "+fileNameOnly+" => OK\n")
+    return text
+
+def getFileNamefromFullPath(fullpath):
+    file_name = os.path.basename(fullpath)
+    #print(file_name)
+    return file_name
 
 
 def writeLog(logAll,filename,myList,header="Header"):    
@@ -61,15 +106,19 @@ def writeText2File(filename,text):
 
 def getLogFilename(logpath):
     createFolder(logpath)
-    return logpath+"\\"+datetimenow+".log"
+    return os.path.join(logpath,datetimenow+".log")
 
 
 def processZipFolders(folders):
     zipRootFolder = createZipFolder()
+    zipFiles = []
     for f in folders:
         new_f = getZipFileName(f)
-        print(new_f)
-        zipFolderAndSub(f,zipRootFolder+new_f+".zip")
+        #print(new_f)
+        zipFileName=os.path.join(zipRootFolder,new_f+".zip")
+        zipFolderAndSub(f,zipFileName)
+        zipFiles.append(zipFileName)
+    return zipFiles
 
 def getZipFileName(zipFile):
     f = zipFile.replace("_", "-" )
@@ -79,7 +128,7 @@ def getZipFileName(zipFile):
     return f
 
 def createZipFolder():
-    zipFolder = archpath + "\\"+ datetimenow + "\\"
+    zipFolder = os.path.join(archpath,datetimenow)
     createFolder(zipFolder)
     #print(zipFolder)
     return zipFolder
