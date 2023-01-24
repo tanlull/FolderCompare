@@ -1,9 +1,11 @@
-ftpserver = '127.0.0.1' #adress of FTP server to connect
+# 
+ftpserver = '127.0.0.1' #adress of FTP server for client to connect
 
 pricefile = 'C:\\Users\\WELCOME\\Desktop\\data_to_backup' #path to the FILE
 sourceFolder = 'C:\\Users\\WELCOME\\Desktop\\data_to_backup' #path to the FILE
 targetFolder = 'C:\\Users\\WELCOME\\Desktop\\data_to_backup_bak' #path to the FILE
 archpath = 'C:\\Users\\WELCOME\Desktop\\data_to_backup_bak' #archive FOLDER
+logpath = 'C:\\Users\\WELCOME\Desktop\\data_to_backup\log' #log path 
 
 sleep = 5 #time to sleep between checks
 

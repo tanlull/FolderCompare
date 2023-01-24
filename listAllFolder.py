@@ -22,14 +22,23 @@ ftppath = settings.ftppath #path on ftpserver to folder where need upload price
 sleep = settings.sleep
 sourceFolder = settings.sourceFolder
 targetFolder = settings.targetFolder
+logpath = settings.logpath
 
 
 
 
 def main():
+    f = open(getLogFilename(logpath),"a+")
     allFolders, rootFolders = findFolder2Backup()
     processZipFolders(rootFolders)
+    for item in rootFolders:
+	    f.write(item+"\n")
+    f.close()
     
+
+def getLogFilename(logpath):
+    createFolder(logpath)
+    return logpath+"\\"+datetimenow+".log"
 
 
 def processZipFolders(folders):
