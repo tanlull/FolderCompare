@@ -5,8 +5,8 @@ pricefile = 'C:\\Users\\WELCOME\\Desktop\\data_to_backup' #path to the FILE
 sourceFolder = 'C:\\Users\\WELCOME\\Desktop\\data_to_backup' #path to the FILE
 targetFolder = 'C:\\Users\\WELCOME\\Desktop\\data_to_backup_bak' #path to the FILE
 archpath = 'C:\\Users\\WELCOME\Desktop\\data_to_backup_bak' #archive FOLDER
-logpath = 'C:\\Users\\WELCOME\Desktop\\data_to_backup\log' #log path 
-
+logpath = 'C:\\Users\\WELCOME\Desktop\\data_to_backup\\log' #log daily path 
+logFile = 'C:\\Users\\WELCOME\Desktop\\data_to_backup\\log\\backup.log' #main log  
 sleep = 5 #time to sleep between checks
 
 

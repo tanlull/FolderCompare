@@ -10,8 +10,10 @@ import numpy as np
 from collections import Counter
 import pickle
 import zipfile
+from datetime import datetime
 
-datetimenow = datetime.datetime.now().strftime("%Y-%m-%d_%H-%M")
+now = datetime.now()
+datetimenow = now.strftime("%Y-%m-%d_%H-%M")
 
 ftpserver = settings.ftpserver
 ftplogin =  settings.ftplogin
@@ -23,18 +25,39 @@ sleep = settings.sleep
 sourceFolder = settings.sourceFolder
 targetFolder = settings.targetFolder
 logpath = settings.logpath
-
+logAll = settings.logFile
 
 
 
 def main():
-    f = open(getLogFilename(logpath),"a+")
+
     allFolders, rootFolders = findFolder2Backup()
+    writeLog(logAll,getLogFilename(logpath),rootFolders,createZipFolder())
     processZipFolders(rootFolders)
-    for item in rootFolders:
-	    f.write(item+"\n")
+
+
+def writeLog(logAll,filename,myList,header="Header"):    
+    text = writeList2File(filename,myList,header)
+    writeText2File(logAll,text)
+
+
+def writeList2File(filename,myList,header="Header"):
+    txt1 = "*****"
+    text = txt1+header+txt1+"\n"
+    for item in myList:
+        text +=item+"\n"
+    text += "\n"
+    #text += txt1*15+"\n\n"
+    writeText2File(filename,text)
+    return text
+
+
+def writeText2File(filename,text):
+    f = open(filename,"a+")
+    f.write(text)
     f.close()
-    
+
+
 
 def getLogFilename(logpath):
     createFolder(logpath)
