@@ -35,11 +35,17 @@ logAll = settings.logFile
 
 def main():
 
+    # Find diff
     allFolders, rootFolders = findFolder2Backup()
     writeLog(logAll,getLogFilename(logpath),rootFolders,createZipFolder())
+
+    # Zip list files
     zipBackupFiles = processZipFolders(rootFolders)
     
-    uploadList2FTP(zipBackupFiles,datetimenow)
+    # FTP 
+    result = uploadList2FTP(zipBackupFiles,datetimenow)
+    writeText2File(getLogFilename(logpath),result)
+    writeText2File(logAll,result)
     #uploadFile2FTP(zipBackupFiles[0],datetimenow)
     #pprint(zipBackupFiles)
 
@@ -58,7 +64,12 @@ def uploadList2FTP(myList,datetimenow):
     text = ""
     session = connectFTP(ftpserver,ftpport,ftplogin,ftppassword)
     ftpRemoteFolder = datetimenow
-    session.mkd(ftpRemoteFolder)
+
+    try:
+        session.mkd(ftpRemoteFolder)
+    except ftp.error_perm:
+        print("Directory "+ftpRemoteFolder+" already exists")
+    
     for f in myList:
         text += uploadFile2FTP(session,f,ftpRemoteFolder)
     closeFTP(session)
@@ -71,8 +82,9 @@ def uploadFile2FTP(session,file2Upload,ftpRemoteFolder):
     fileNameOnly = getFileNamefromFullPath(file2Upload)
     session.storbinary('STOR '+os.path.join(ftpRemoteFolder,fileNameOnly), file)     # send the file
     file.close()                                    # close file and FTP
-    text += "Upload "+fileNameOnly+" => OK\n"
-    print("Upload "+fileNameOnly+" => OK\n")
+    result = "FTP: "+fileNameOnly+" => OK\n"
+    text += result
+    print(result)
     return text
 
 def getFileNamefromFullPath(fullpath):
