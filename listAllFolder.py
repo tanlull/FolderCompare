@@ -28,13 +28,18 @@ ftppath = settings.ftppath #path on ftpserver to folder where need upload price
 sleep = settings.sleep
 sourceFolder = settings.sourceFolder
 targetFolder = settings.targetFolder
-logpath = settings.logpath
-logAll = settings.logFile
+logpath = settings.logPath
+logAll = os.path.join(logpath,settings.logFile)
+backupProcessPath = settings.backupProcessPath
+pickleFiles = os.path.join(backupProcessPath,settings.pickleFiles)
+pickleFolders = os.path.join(backupProcessPath,settings.pickleFolders)
 
 
+def initial():
+    createFolder(backupProcessPath)
 
 def main():
-
+    initial()
     # Find diff
     allFolders, rootFolders = findFolder2Backup()
     writeLog(logAll,getLogFilename(logpath),rootFolders,createZipFolder())
@@ -44,18 +49,29 @@ def main():
     
     # FTP 
     result = uploadList2FTP(zipBackupFiles,datetimenow)
-    writeText2File(getLogFilename(logpath),result)
-    writeText2File(logAll,result)
+    writeLogAll(result)
     #uploadFile2FTP(zipBackupFiles[0],datetimenow)
     #pprint(zipBackupFiles)
 
+def writeLogAll(text):
+    writeText2File(getLogFilename(logpath),text)
+    writeText2File(logAll,text)
 
 def connectFTP(ftpserver,ftpport,ftplogin,ftppassword):
-    session = ftp.FTP()
-    session.connect(ftpserver,int(ftpport))
-    session.login(ftplogin,ftppassword)
-    session.encoding = "utf-8"
-    return session
+    try:
+        session = ftp.FTP()
+        session.connect(ftpserver,int(ftpport))
+        session.login(ftplogin,ftppassword)
+        session.encoding = "utf-8"
+        return session
+    except IOError as e:
+        import sys
+        error_msg = "I/O error({0}): {1}".format(e.errno, e.strerror)
+        writeLogAll(error_msg)
+        print(error_msg)        
+        sys.exit("Exit FTP Error")  
+
+
 
 def closeFTP(session):
     session.quit()
@@ -199,13 +215,13 @@ def diffList(newFolders,oldFolders):
 
 
 def LoadList():
-    folders = loadFile2List("folders.pickle")
-    files = loadFile2List("files.pickle")
+    folders = loadFile2List(pickleFolders)
+    files = loadFile2List(pickleFiles)
     return folders,files
 
 def dumpList(folders,files):
-    dumpList2File(folders,"folders.pickle")
-    dumpList2File(files,"files.pickle")
+    dumpList2File(folders,pickleFolders)
+    dumpList2File(files,pickleFiles)
 
 def loadFile2List(myFilename):
     with open(myFilename, 'rb') as f:
