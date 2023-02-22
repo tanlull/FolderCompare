@@ -41,14 +41,15 @@ def initial():
 def main():
     initial()
     # Find diff
-    allFolders, rootFolders = findFolder2Backup()
+    currentFolders, currentFiles, allNewFolders, rootNewFolders = findFolder2Backup(sourceFolder)
    
-    writeLogHeader(logAll,getLogFilename(logpath),rootFolders,createZipFolder())
+    writeLogHeader(logAll,getLogFilename(logpath),rootNewFolders,createZipFolder())
 
-    # Process Backup only found new Folder
-    if rootFolders: 
+    # Process Backup only found new Folder (diff folder)
+    if rootNewFolders: 
+        saveList2PickleFile(currentFolders,currentFiles)
         # Zip list files
-        zipBackupFiles = processZipFolders(rootFolders)
+        zipBackupFiles = processZipFolders(rootNewFolders)
         # FTP 
         result = uploadList2FTP(zipBackupFiles,datetimenow)
         writeLogAll(result)
@@ -57,6 +58,20 @@ def main():
     
     #uploadFile2FTP(zipBackupFiles[0],datetimenow)
     #pprint(zipBackupFiles)
+
+def saveList2PickleFile(currentFolders,currentFiles):
+    #get backup name
+    backupPickleFolders = os.path.join(settings.backupProcessPath,datetimenow+"."+settings.pickleFolders)
+    #backupPickleFiles  = os.path.join(settings.backupProcessPath,datetimenow+"."+settings.pickleFiles)
+    
+    os.rename(pickleFolders,backupPickleFolders) # backup 
+    dumpList2File(currentFolders,pickleFolders) # save folders.pickle
+
+    # os.rename(pickleFiles,backupPickleFiles)    
+    # dumpList2File(currentFiles,pickleFiles) # files.pickle
+
+
+
 
 def writeLogAll(text):
     writeText2File(getLogFilename(logpath),text)
@@ -188,20 +203,23 @@ def zipFolder(fileName2Zip,folder2Zip):
         for file in folder2Zip:
             zipMe.write(file, compress_type=zipfile.ZIP_DEFLATED)
 
-def findFolder2Backup():
+def findFolder2Backup(sourceFolder):
     #print("ftpserver = "+ftpserver+",user = "+ftplogin)
     currentFolders, currentFiles = listAllFolder(sourceFolder)
     #folders, files = listAllFolder("C:\RPAShare")
     #print(files)
     #print(folders)  
-    #dumpList(folders,files)
     oldFolders, oldFiles= LoadList()  # load from pickle
     #print(foldersPrev)
+
+    # all diff folder ie.  C\C , C\D , C\D\E , A\
     newCreatedFolders = diffList(currentFolders,oldFolders)
     #print(newCreatedFolders)
-    rootNewCreatedFolders = removeChildFolder(newCreatedFolders)
+    
+    # Folder that contain diff root only  i,e, C , A
+    rootNewCreatedFolders = removeChildFolder(newCreatedFolders) 
     #print(rootNewCreatedFolders)
-    return newCreatedFolders,rootNewCreatedFolders
+    return currentFolders,currentFiles,newCreatedFolders,rootNewCreatedFolders
 
 def removeChildFolder(folderList):
     folderListNew = folderList.copy()
@@ -221,12 +239,9 @@ def diffList(newFolders,oldFolders):
 
 def LoadList():
     folders = loadFile2List(pickleFolders)
-    files = loadFile2List(pickleFiles)
+    files = []
+    #files = loadFile2List(pickleFiles)
     return folders,files
-
-def dumpList(folders,files):
-    dumpList2File(folders,pickleFolders)
-    dumpList2File(files,pickleFiles)
 
 def loadFile2List(myFilename):
     with open(myFilename, 'rb') as f:
