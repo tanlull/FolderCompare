@@ -63,8 +63,10 @@ def saveList2PickleFile(currentFolders,currentFiles):
     #get backup name
     backupPickleFolders = os.path.join(settings.backupProcessPath,datetimenow+"."+settings.pickleFolders)
     #backupPickleFiles  = os.path.join(settings.backupProcessPath,datetimenow+"."+settings.pickleFiles)
-    
-    os.rename(pickleFolders,backupPickleFolders) # backup 
+    try:    
+        os.rename(pickleFolders,backupPickleFolders) # backup 
+    except:
+        writeLogAll("Pickle Not found :"+pickleFolders+"\n")
     dumpList2File(currentFolders,pickleFolders) # save folders.pickle
 
     # os.rename(pickleFiles,backupPickleFiles)    
@@ -238,14 +240,20 @@ def diffList(newFolders,oldFolders):
 
 
 def LoadList():
-    folders = loadFile2List(pickleFolders)
     files = []
-    #files = loadFile2List(pickleFiles)
+    try:
+        folders = loadFile2List(pickleFolders)
+        #files = loadFile2List(pickleFiles)
+    except:
+        folders = []
     return folders,files
 
 def loadFile2List(myFilename):
-    with open(myFilename, 'rb') as f:
-        return pickle.load(f)
+    try:
+        with open(myFilename, 'rb') as f:
+            return pickle.load(f)
+    except:
+        raise Exception('File not found')
         
 #Dump list to Pickle File
 def dumpList2File(myList,myFilename):
