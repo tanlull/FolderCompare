@@ -42,14 +42,19 @@ def main():
     initial()
     # Find diff
     allFolders, rootFolders = findFolder2Backup()
-    writeLog(logAll,getLogFilename(logpath),rootFolders,createZipFolder())
+   
+    writeLogHeader(logAll,getLogFilename(logpath),rootFolders,createZipFolder())
 
-    # Zip list files
-    zipBackupFiles = processZipFolders(rootFolders)
+    # Process Backup only found new Folder
+    if rootFolders: 
+        # Zip list files
+        zipBackupFiles = processZipFolders(rootFolders)
+        # FTP 
+        result = uploadList2FTP(zipBackupFiles,datetimenow)
+        writeLogAll(result)
+    else : 
+        writeLogAll("No Folder to Backup\n\n")
     
-    # FTP 
-    result = uploadList2FTP(zipBackupFiles,datetimenow)
-    writeLogAll(result)
     #uploadFile2FTP(zipBackupFiles[0],datetimenow)
     #pprint(zipBackupFiles)
 
@@ -109,7 +114,7 @@ def getFileNamefromFullPath(fullpath):
     return file_name
 
 
-def writeLog(logAll,filename,myList,header="Header"):    
+def writeLogHeader(logAll,filename,myList,header="Header"):    
     text = writeList2File(filename,myList,header)
     writeText2File(logAll,text)
 
@@ -227,7 +232,7 @@ def loadFile2List(myFilename):
     with open(myFilename, 'rb') as f:
         return pickle.load(f)
         
-
+#Dump list to Pickle File
 def dumpList2File(myList,myFilename):
     with open(myFilename, 'wb') as f:
         pickle.dump(myList, f)
