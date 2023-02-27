@@ -1,10 +1,8 @@
 # ---- Client Side Config 
 ftpserver = '127.0.0.1' #adress of FTP server for client to connect
 
-pricefile = 'C:\\Users\\WELCOME\\Desktop\\data_to_backup' #path to the FILE
-sourceFolder = 'C:\\Users\\WELCOME\\Desktop\\data_to_backup' #path to the FILE
-targetFolder = 'C:\\Users\\WELCOME\\Desktop\\data_to_backup_bak' #path to the FILE
-archpath = 'C:\\Users\\WELCOME\Desktop\\data_to_backup_bak' #archive FOLDER
+sourceFolder = 'C:\\Users\\WELCOME\\Desktop\\data_to_backup' #Source folder to scan to backup
+archpath = 'C:\\Users\\WELCOME\Desktop\\data_to_backup_bak' #archive FOLDER : zip here before FTP to FTP Server
 
 
 # --- FTP Server Side Config ----#

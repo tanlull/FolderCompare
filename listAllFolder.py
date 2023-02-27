@@ -22,12 +22,10 @@ ftpserver = settings.ftpserver
 ftplogin =  settings.ftplogin
 ftppassword = settings.ftppassword
 ftpport = settings.ftpport
-pricefile = settings.pricefile #path to the file with price (price-list)
 archpath = settings.archpath #archive folder for uploaded prices
 ftppath = settings.ftppath #path on ftpserver to folder where need upload price
 sleep = settings.sleep
 sourceFolder = settings.sourceFolder
-targetFolder = settings.targetFolder
 logpath = settings.logPath
 logAll = os.path.join(logpath,settings.logFile)
 backupProcessPath = settings.backupProcessPath
@@ -178,10 +176,10 @@ def getZipFileName(zipFile):
     return f
 
 def createZipFolder():
-    zipFolder = os.path.join(archpath,datetimenow)
-    createFolder(zipFolder)
+    zipArchFolder = os.path.join(archpath,datetimenow)
+    createFolder(zipArchFolder)
     #print(zipFolder)
-    return zipFolder
+    return zipArchFolder
 
 def createFolder(directory):
     if not os.path.exists(directory):
