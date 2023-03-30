@@ -1,4 +1,4 @@
-from pyftpdlib.authorizers import WindowsAuthorizer
+from pyftpdlib.authorizers import DummyAuthorizer
 from pyftpdlib.handlers import FTPHandler
 from pyftpdlib.servers import FTPServer
 import settings
@@ -10,7 +10,7 @@ ftppassword = settings.ftppassword
 ftppath = settings.ftppath 
 
 def main():
-    authorizer = WindowsAuthorizer()
+    authorizer = DummyAuthorizer()
     authorizer.add_user(ftplogin, ftppassword, ftppath ,perm="elradfmw") # สร้าง user ชื่อ user รหัส 12345 ที่ตั้ง ftp คือ /home/giampaolo
     #authorizer.add_anonymous("/home/nobody") # สร้างสิทธิ์ให้เข้าถึงโฟลเลอร์ /home/nobody ให้ user คนทั่วไป
 
