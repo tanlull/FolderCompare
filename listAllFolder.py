@@ -83,6 +83,7 @@ def connectFTP(ftpserver,ftpport,ftplogin,ftppassword):
         session.connect(ftpserver,int(ftpport))
         session.login(ftplogin,ftppassword)
         session.encoding = "utf-8"
+        print("FTP Connect => Success")
         return session
     except IOError as e:
         import sys
