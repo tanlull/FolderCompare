@@ -145,10 +145,11 @@ def writeList2File(filename,myList,header="Header"):
     return text
 
 
-def writeText2File(filename,text):
+def writeText2File(filename,text):    
     f = open(filename,"a+")
     f.write(text)
     f.close()
+    print(text)
 
 
 
