@@ -39,6 +39,7 @@ def initial():
 def main():
     initial()
     # Find diff
+
     currentFolders, currentFiles, allNewFolders, rootNewFolders = findFolder2Backup(sourceFolder)
    
     writeLogHeader(logAll,getLogFilename(logpath),rootNewFolders,createZipFolder())
@@ -98,6 +99,7 @@ def closeFTP(session):
     session.quit()
 
 def uploadList2FTP(myList,datetimenow):
+    print("Upload zip to FTP...")
     text = ""
     session = connectFTP(ftpserver,ftpport,ftplogin,ftppassword)
     ftpRemoteFolder = datetimenow
@@ -150,7 +152,7 @@ def writeText2File(filename,text):
     f = open(filename,"a+")
     f.write(text)
     f.close()
-    print(text)
+    #print(text)
 
 
 
@@ -160,11 +162,12 @@ def getLogFilename(logpath):
 
 
 def processZipFolders(folders):
+    print("Process zip folder ..")
     zipRootFolder = createZipFolder()
     zipFiles = []
     for f in folders:
         new_f = getZipFileName(f)
-        #print(new_f)
+        print(new_f)
         zipFileName=os.path.join(zipRootFolder,new_f+".zip")
         zipFolderAndSub(f,zipFileName)
         zipFiles.append(zipFileName)
@@ -180,7 +183,7 @@ def getZipFileName(zipFile):
 def createZipFolder():
     zipArchFolder = os.path.join(archpath,datetimenow)
     createFolder(zipArchFolder)
-    #print(zipFolder)
+    print(zipFolder)
     return zipArchFolder
 
 def createFolder(directory):
@@ -207,6 +210,7 @@ def zipFolder(fileName2Zip,folder2Zip):
 
 def findFolder2Backup(sourceFolder):
     #print("ftpserver = "+ftpserver+",user = "+ftplogin)
+    print("Looking for Folder to Backup....")
     currentFolders, currentFiles = listAllFolder(sourceFolder)
     #folders, files = listAllFolder("C:\RPAShare")
     #print(files)
@@ -282,7 +286,7 @@ def listAllFolder(path):
         allFolders.append(root)  # Root folder
 
         listFile = genFileformDict(root,files,"\\") # Generate full file path (C:\\xxx + yyy.txt)
-        # print(listFile)
+        print(listFile)
         allFiles.extend(listFile)
 
 
