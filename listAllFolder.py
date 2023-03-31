@@ -286,7 +286,7 @@ def listAllFolder(path):
         allFolders.append(root)  # Root folder
 
         listFile = genFileformDict(root,files,"\\") # Generate full file path (C:\\xxx + yyy.txt)
-        print(listFile)
+        #print(listFile)
         allFiles.extend(listFile)
 
 
